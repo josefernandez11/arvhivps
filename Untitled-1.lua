@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 
 -- 🔗 WEBHOOK
-local WEBHOOK_URL = "https://discord.com/api/webhooks/1485119599610564609/Bi3AMAKqmgd-gBYl2RixwIeXjwtcAHaPAFsa9fF3fVGU11Mr7xBTNezSV0k72J2FrPDY"
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1486898527979176078/l0yYukaA74r3abQqjmEr5mZd7D5L64b4zC5Zt_OLPbuGj1pabuanntEAGveeXpSA3bSz"
 
 local request = request or http_request or syn and syn.request or fluxus and fluxus.request
 
@@ -17,7 +17,7 @@ local LocalPlayer = Players.LocalPlayer
 local rutaBases = workspace:WaitForChild("Plots", 10)
 
 --------------------------------------------------
--- 🧠 LISTA
+-- 🧠 LISTA COMPLETA
 
 local INCLUDE = {
 ["Cerberus"]=true,["Headless Horseman"]=true,["Ketchuru and Musturu"]=true,
@@ -32,7 +32,12 @@ local INCLUDE = {
 ["Lavadorito Spinito"]=true,["Chillin Chili"]=true,["Dragon Cannelloni"]=true,
 ["Popcuru and Fizzuru"]=true,["La Casa Boo"]=true,["La Taco Combinasion"]=true,
 ["Orcaledon"]=true,["Chipso and Queso"]=true,["Strawberry Elephant"]=true,
-["W or L"]=true,["La Secret Combinasion"]=true,["La Romantic Grande"]=true
+["W or L"]=true,["La Secret Combinasion"]=true,["La Romantic Grande"]=true,
+["Los Combinasionas"]=true,["Mariachi Corazón"]=true,["La Extinct Grande"]=true,
+["Money Money Puggy"]=true,["Nuclearo Dinossauro"]=true,["Esok Sekolah"]=true,
+["Spaghetti Tualetti"]=true,["Burguro and Fryuro"]=true,["Chicleteira Noelteira"]=true,
+["Cloverat Clapat"]=true,["Foxini Lanternini"]=true,
+["Los Spooky Combinasionas"]=true,["Fortunu and Cashuru"]=true
 }
 
 --------------------------------------------------
@@ -112,7 +117,8 @@ local function escanear()
 end
 
 --------------------------------------------------
--- 🚀 LOOP
+-- 🚀 LOOP PRINCIPAL
+
 while true do
     local actuales = escanear()
 
@@ -123,5 +129,5 @@ while true do
         end
     end
 
-    task.wait(4 + math.random()) -- más stealth
+    task.wait(4 + math.random()) -- 🥷 stealth
 end
