@@ -1,23 +1,23 @@
 repeat task.wait() until game:IsLoaded()
 
 local HttpService = game:GetService("HttpService")
-local VirtualUser = game:GetService("VirtualUser")
-local VirtualInputManager = game:GetService("VirtualInputManager")
 local Players = game:GetService("Players")
+local TeleportService = game:GetService("TeleportService")
 
 -- 🔗 WEBHOOK
-local WEBHOOK_URL = "https://discord.com/api/webhooks/1486898527979176078/l0yYukaA74r3abQqjmEr5mZd7D5L64b4zC5Zt_OLPbuGj1pabuanntEAGveeXpSA3bSz"
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1485119599610564609/Bi3AMAKqmgd-gBYl2RixwIeXjwtcAHaPAFsa9fF3fVGU11Mr7xBTNezSV0k72J2FrPDY"
 
-local request = request or http_request or syn and syn.request
+local request = request or http_request or syn and syn.request or fluxus and fluxus.request
 
 -- 🎮 INFO
 local jobId = game.JobId
+local LocalPlayer = Players.LocalPlayer
 
 -- 📍 RUTA BASES
-local rutaBases = workspace:FindFirstChild("Plots")
+local rutaBases = workspace:WaitForChild("Plots", 10)
 
 --------------------------------------------------
--- 🧠 LISTA (SOLO LOS QUE QUIERES)
+-- 🧠 LISTA
 
 local INCLUDE = {
 ["Cerberus"]=true,["Headless Horseman"]=true,["Ketchuru and Musturu"]=true,
@@ -40,35 +40,17 @@ local INCLUDE = {
 local estado = {}
 
 --------------------------------------------------
--- 🛑 ANTI-AFK COMPLETO
+-- 🔄 AUTO REJOIN SOLO SI TE KICKEAN
 
--- 🖱️ CLIC
-Players.LocalPlayer.Idled:Connect(function()
-    VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-    task.wait(1)
-    VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-end)
+game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ChildAdded:Connect(function(child)
+    if child.Name == "ErrorPrompt" then
+        task.wait(3)
 
--- ⌨️ MOVIMIENTO REAL (W automático)
-task.spawn(function()
-    while true do
-        task.wait(300) -- 5 minutos
+        print("🔄 Detectado kick, rejoin...")
 
-        print("🛑 Anti-AFK movimiento iniciado")
-
-        -- caminar
-        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.W, false, game)
-        task.wait(1.5)
-        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.W, false, game)
-
-        task.wait(0.5)
-
-        -- segunda caminata
-        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.W, false, game)
-        task.wait(1.5)
-        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.W, false, game)
-
-        print("🛑 Anti-AFK movimiento terminado")
+        pcall(function()
+            TeleportService:Teleport(game.PlaceId, LocalPlayer)
+        end)
     end
 end)
 
@@ -130,7 +112,7 @@ local function escanear()
 end
 
 --------------------------------------------------
--- 🚀 LOOP INFINITO
+-- 🚀 LOOP
 while true do
     local actuales = escanear()
 
@@ -141,5 +123,5 @@ while true do
         end
     end
 
-    task.wait(2)
+    task.wait(4 + math.random()) -- más stealth
 end
