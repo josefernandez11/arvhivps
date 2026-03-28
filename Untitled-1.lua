@@ -60,7 +60,8 @@ game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ChildAdded:Connect(func
 end)
 
 --------------------------------------------------
--- 📢 DISCORD
+-- 📢 DISCORD (MODIFICADO)
+
 local function enviarDiscord(base, nombre)
     if not request then return end
 
@@ -70,7 +71,9 @@ local function enviarDiscord(base, nombre)
         ["content"] =
         "🔥 **DETECTADO**\n\n"..
         "📍 Base: "..base.."\n"..
-        "🧠 Brainrot: "..nombre.."\n\n"..
+        "🧠 Brainrot: "..nombre.."\n"..
+        "🆔 JobId: "..jobId.."\n"..
+        "🤖 Bot: "..LocalPlayer.Name.."\n\n"..
         "👉 [🚀 JOIN](<"..link..">)"
     }
 
@@ -88,6 +91,7 @@ end
 
 --------------------------------------------------
 -- 🔍 ESCANEO
+
 local function escanear()
     local actual = {}
 
