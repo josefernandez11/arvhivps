@@ -112,13 +112,14 @@ local function escanear()
 
             for nombre, _ in pairs(INCLUDE) do
                 local encontrados = findAllChildrenByName(base, nombre)
-                if #encontrados > 0 then
-                    table.insert(encontradosEnBase, nombre)
+                for _ = 1, #encontrados do
+                    table.insert(encontradosEnBase, nombre) -- agrega repetidos
                     local key = base.Name.."_"..nombre
                     actuales[key] = true
                 end
             end
 
+            -- Filtrar los que son nuevos
             local nuevos = {}
             for _, nombre in ipairs(encontradosEnBase) do
                 local key = base.Name.."_"..nombre
