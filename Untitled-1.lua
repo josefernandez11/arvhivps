@@ -1,4 +1,4 @@
-repeat task.wait() until game:IsLoaded()
+repeatrepeat task.wait() until game:IsLoaded()
 
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
@@ -7,8 +7,8 @@ local TeleportService = game:GetService("TeleportService")
 -- 🔗 WEBHOOK
 local WEBHOOK_URL = "https://discord.com/api/webhooks/1486898527979176078/l0yYukaA74r3abQqjmEr5mZd7D5L64b4zC5Zt_OLPbuGj1pabuanntEAGveeXpSA3bSz"
 
--- 🔗 SERVER PYTHON (CAMBIA ESTO)
-local SERVER_URL = "http://localhost:5000/"
+-- 🔗 SERVER PYTHON (USA TU NGROK)
+local SERVER_URL = "https://ledgy-thea-unhumiliatingly.ngrok-free.dev"
 
 local request = request or http_request or syn and syn.request or fluxus and fluxus.request
 
@@ -43,7 +43,7 @@ local INCLUDE = {
 }
 
 --------------------------------------------------
--- 🧠 MEMORIA
+-- 🧠 MEMORIA (anti spam)
 local estado = {}
 
 --------------------------------------------------
@@ -65,7 +65,7 @@ local function enviarDiscord(base, nombre)
     local link = "https://www.roblox.com/games/start?placeId=109983668079237&gameInstanceId="..jobId
 
     local data = {
-        ["content"] =
+        content =
         "🔥 **DETECTADO**\n\n"..
         "📍 Base: "..base.."\n"..
         "🧠 Brainrot: "..nombre.."\n"..
@@ -85,15 +85,22 @@ local function enviarDiscord(base, nombre)
 end
 
 --------------------------------------------------
--- 🔥 SERVER PYTHON (REEMPLAZO GITHUB)
+-- 🔥 SERVER PYTHON (FIX JSON ERROR)
 local function enviarServer(base, nombre)
     if not request then return end
 
-    local data = {
-        base = base,
-        name = nombre,
-        jobId = jobId
-    }
+    local success, body = pcall(function()
+        return HttpService:JSONEncode({
+            base = tostring(base),
+            name = tostring(nombre),
+            jobId = tostring(jobId)
+        })
+    end)
+
+    if not success then
+        warn("Error creando JSON")
+        return
+    end
 
     pcall(function()
         request({
@@ -102,7 +109,7 @@ local function enviarServer(base, nombre)
             Headers = {
                 ["Content-Type"] = "application/json"
             },
-            Body = HttpService:JSONEncode(data)
+            Body = body
         })
     end)
 end
@@ -141,7 +148,7 @@ local function escanear()
 end
 
 --------------------------------------------------
--- 🚀 LOOP
+-- 🚀 LOOP (RÁPIDO)
 while true do
     local actuales = escanear()
 
@@ -149,6 +156,10 @@ while true do
         if not actuales[key] then
             estado[key] = nil
         end
+    end
+
+    task.wait(2) -- 🔥 MÁS RÁPIDO
+end
     end
 
     task.wait(2) -- 🔥 más rápido
