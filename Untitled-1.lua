@@ -70,7 +70,6 @@ local function enviarDiscord(base, nombres)
             ["color"] = 16711680,
             ["fields"] = {
                 {["name"] = "📍 Base", ["value"] = base, ["inline"] = true},
-                {["name"] = "🧠 Brainrots", ["value"] = listaEnumerada, ["inline"] = true},
                 {["name"] = "🆔 JobId", ["value"] = jobId, ["inline"] = false},
                 {["name"] = "🤖 Bot", ["value"] = LocalPlayer.Name, ["inline"] = true},
                 {["name"] = "🚀 Unirse", ["value"] = "[Click para entrar]("..link..")", ["inline"] = false}
