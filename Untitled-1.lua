@@ -114,19 +114,19 @@ local function escanear()
             -- Buscar todos los brainrots en INCLUDE
             for nombre, _ in pairs(INCLUDE) do
                 local encontrados = findAllChildrenByName(base, nombre)
-                for i = 1, #encontrados do
+                for _, child in ipairs(encontrados) do
                     table.insert(encontradosEnBase, nombre) -- agregar repetidos
-                    local key = base.Name.."_"..nombre.."_"..i -- clave única por aparición
+                    local key = base.Name.."_"..child:GetFullName() -- clave única por objeto
                     actuales[key] = true
                 end
             end
 
             -- Filtrar los que son nuevos para notificar
             local nuevos = {}
-            for i, nombre in ipairs(encontradosEnBase) do
-                local key = base.Name.."_"..nombre.."_"..i
+            for _, child in ipairs(encontradosEnBase) do
+                local key = base.Name.."_"..child
                 if not estado[key] then
-                    table.insert(nuevos, nombre)
+                    table.insert(nuevos, child)
                     estado[key] = true
                 end
             end
