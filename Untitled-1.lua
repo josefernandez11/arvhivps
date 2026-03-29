@@ -69,6 +69,7 @@ local function enviarDiscord(base, nombres)
             ["color"] = 16711680,
             ["fields"] = {
                 {["name"] = "🤖 Bot", ["value"] = LocalPlayer.Name, ["inline"] = true},
+                {["name"] = "🆔 JobId", ["value"] = jobId, ["inline"] = true},
                 {["name"] = "🚀 Unirse", ["value"] = "[Click para entrar](https://www.roblox.com/games/start?placeId=109983668079237&gameInstanceId="..jobId..")", ["inline"] = false}
             },
             ["footer"] = {["text"] = "Cix Finder • Auto Scanner"}
