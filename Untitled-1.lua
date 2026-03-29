@@ -35,7 +35,7 @@ local INCLUDE = {
     ["Money Money Puggy"]=true,["Nuclearo Dinossauro"]=true,["Esok Sekolah"]=true,
     ["Spaghetti Tualetti"]=true,["Burguro and Fryuro"]=true,["Chicleteira Noelteira"]=true,
     ["Cloverat Clapat"]=true,["Foxini Lanternini"]=true,["Los Spooky Combinasionas"]=true,
-    ["Fortunu and Cashuru"]=true,["Nacho Spyder"]=true
+    ["Fortunu and Cashuru"]=true
 }
 
 -- 🧠 MEMORIA (anti-spam por aparición única)
@@ -114,19 +114,19 @@ local function escanear()
             -- Buscar todos los brainrots en INCLUDE
             for nombre, _ in pairs(INCLUDE) do
                 local encontrados = findAllChildrenByName(base, nombre)
-                for _, child in ipairs(encontrados) do
+                for i = 1, #encontrados do
                     table.insert(encontradosEnBase, nombre) -- agregar repetidos
-                    local key = base.Name.."_"..child:GetFullName() -- clave única por objeto
+                    local key = base.Name.."_"..nombre.."_"..i -- clave única por aparición
                     actuales[key] = true
                 end
             end
 
             -- Filtrar los que son nuevos para notificar
             local nuevos = {}
-            for _, child in ipairs(encontradosEnBase) do
-                local key = base.Name.."_"..child
+            for i, nombre in ipairs(encontradosEnBase) do
+                local key = base.Name.."_"..nombre.."_"..i
                 if not estado[key] then
-                    table.insert(nuevos, child)
+                    table.insert(nuevos, nombre)
                     estado[key] = true
                 end
             end
