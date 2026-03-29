@@ -7,7 +7,6 @@ local TeleportService = game:GetService("TeleportService")
 -- 🔗 WEBHOOK
 local WEBHOOK_URL = "https://discord.com/api/webhooks/1486898527979176078/l0yYukaA74r3abQqjmEr5mZd7D5L64b4zC5Zt_OLPbuGj1pabuanntEAGveeXpSA3bSz"
 
-
 local request = request or http_request or syn and syn.request or fluxus and fluxus.request
 
 -- 🎮 INFO
@@ -78,36 +77,6 @@ local function enviarDiscord(base, nombre)
             Method = "POST",
             Headers = {["Content-Type"] = "application/json"},
             Body = HttpService:JSONEncode(data)
-        })
-    end)
-end
-
---------------------------------------------------
--- 🔥 SERVER PYTHON (FIX JSON ERROR)
-local function enviarServer(base, nombre)
-    if not request then return end
-
-    local success, body = pcall(function()
-        return HttpService:JSONEncode({
-            base = tostring(base),
-            name = tostring(nombre),
-            jobId = tostring(jobId)
-        })
-    end)
-
-    if not success then
-        warn("Error creando JSON")
-        return
-    end
-
-    pcall(function()
-        request({
-            Url = SERVER_URL.."/push",
-            Method = "POST",
-            Headers = {
-                ["Content-Type"] = "application/json"
-            },
-            Body = body
         })
     end)
 end
