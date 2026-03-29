@@ -1,4 +1,4 @@
-repeatrepeat task.wait() until game:IsLoaded()
+repeat task.wait() until game:IsLoaded()
 
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
@@ -55,20 +55,50 @@ game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ChildAdded:Connect(func
 end)
 
 --------------------------------------------------
--- 📢 DISCORD
+-- 📢 DISCORD (SIN ICONO)
 local function enviarDiscord(base, nombre)
     if not request then return end
 
     local link = "https://www.roblox.com/games/start?placeId=109983668079237&gameInstanceId="..jobId
 
     local data = {
-        content =
-        "🔥 **DETECTADO**\n\n"..
-        "📍 Base: "..base.."\n"..
-        "🧠 Brainrot: "..nombre.."\n"..
-        "🆔 JobId: "..jobId.."\n"..
-        "🤖 Bot: "..LocalPlayer.Name.."\n\n"..
-        "👉 [🚀 JOIN](<"..link..">)"
+        ["embeds"] = {{
+            ["title"] = "🔥 Brainrot Detectado",
+            ["description"] = "**"..nombre.."** encontrado",
+            ["color"] = 16711680,
+
+            ["fields"] = {
+                {
+                    ["name"] = "📍 Base",
+                    ["value"] = base,
+                    ["inline"] = true
+                },
+                {
+                    ["name"] = "🧠 Brainrot",
+                    ["value"] = nombre,
+                    ["inline"] = true
+                },
+                {
+                    ["name"] = "🆔 JobId",
+                    ["value"] = jobId,
+                    ["inline"] = false
+                },
+                {
+                    ["name"] = "🤖 Bot",
+                    ["value"] = LocalPlayer.Name,
+                    ["inline"] = true
+                },
+                {
+                    ["name"] = "🚀 Unirse",
+                    ["value"] = "[Click para entrar](https://www.roblox.com/games/start?placeId=109983668079237&gameInstanceId="..jobId..")",
+                    ["inline"] = false
+                }
+            },
+
+            ["footer"] = {
+                ["text"] = "Cix Finder • Auto Scanner"
+            }
+        }}
     }
 
     pcall(function()
@@ -115,7 +145,7 @@ local function escanear()
 end
 
 --------------------------------------------------
--- 🚀 LOOP (RÁPIDO)
+-- 🚀 LOOP
 while true do
     local actuales = escanear()
 
@@ -125,9 +155,5 @@ while true do
         end
     end
 
-    task.wait(2) -- 🔥 MÁS RÁPIDO
-end
-    end
-
-    task.wait(2) -- 🔥 más rápido
+    task.wait(2)
 end
