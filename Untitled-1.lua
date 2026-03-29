@@ -7,11 +7,8 @@ local TeleportService = game:GetService("TeleportService")
 -- 🔗 WEBHOOK
 local WEBHOOK_URL = "https://discord.com/api/webhooks/1486898527979176078/l0yYukaA74r3abQqjmEr5mZd7D5L64b4zC5Zt_OLPbuGj1pabuanntEAGveeXpSA3bSz"
 
--- 🔗 GITHUB CONFIG
-local GITHUB_TOKEN = "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"
-local GITHUB_USER = "josefernandez11"
-local REPO = "NOTIFICADOR"
-local FILE = "brainrot.json"
+-- 🔗 SERVER PYTHON (CAMBIA ESTO)
+local SERVER_URL = "http://localhost:8000/"
 
 local request = request or http_request or syn and syn.request or fluxus and fluxus.request
 
@@ -21,66 +18,6 @@ local LocalPlayer = Players.LocalPlayer
 
 -- 📍 RUTA BASES
 local rutaBases = workspace:WaitForChild("Plots", 10)
-
---------------------------------------------------
--- 🔐 BASE64
-local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-
-local function base64Encode(data)
-    return ((data:gsub('.', function(x) 
-        local r,binary='',x:byte()
-        for i=8,1,-1 do r=r..(binary%2^i-binary%2^(i-1)>0 and '1' or '0') end
-        return r
-    end)..'0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
-        if (#x < 6) then return '' end
-        local c=0
-        for i=1,6 do c=c+(x:sub(i,i)=='1' and 2^(6-i) or 0) end
-        return b:sub(c+1,c+1)
-    end)..({ '', '==', '=' })[#data%3+1])
-end
-
---------------------------------------------------
--- 🔎 SHA
-local function getSHA()
-    local url = "https://api.github.com/repos/"..GITHUB_USER.."/"..REPO.."/contents/"..FILE
-    local response = game:HttpGet(url)
-    local data = HttpService:JSONDecode(response)
-    return data.sha
-end
-
---------------------------------------------------
--- 📤 GITHUB
-local function updateGitHub(base, nombre)
-    if not request then return end
-
-    local sha = getSHA()
-    local url = "https://api.github.com/repos/"..GITHUB_USER.."/"..REPO.."/contents/"..FILE
-
-    local jsonData = HttpService:JSONEncode({
-        base = base,
-        name = nombre,
-        value = 0, -- (puedes mejorar esto luego)
-        jobId = jobId
-    })
-
-    local data = {
-        message = "brainrot detectado",
-        content = base64Encode(jsonData),
-        sha = sha
-    }
-
-    pcall(function()
-        request({
-            Url = url,
-            Method = "PUT",
-            Headers = {
-                ["Authorization"] = "token "..GITHUB_TOKEN,
-                ["Content-Type"] = "application/json"
-            },
-            Body = HttpService:JSONEncode(data)
-        })
-    end)
-end
 
 --------------------------------------------------
 -- 🧠 LISTA
@@ -148,6 +85,29 @@ local function enviarDiscord(base, nombre)
 end
 
 --------------------------------------------------
+-- 🔥 SERVER PYTHON (REEMPLAZO GITHUB)
+local function enviarServer(base, nombre)
+    if not request then return end
+
+    local data = {
+        base = base,
+        name = nombre,
+        jobId = jobId
+    }
+
+    pcall(function()
+        request({
+            Url = SERVER_URL.."/push",
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = HttpService:JSONEncode(data)
+        })
+    end)
+end
+
+--------------------------------------------------
 -- 🔍 ESCANEO
 local function escanear()
     local actual = {}
@@ -167,7 +127,7 @@ local function escanear()
                         print("🔥 Detectado:", base.Name, nombre)
 
                         enviarDiscord(base.Name, nombre)
-                        updateGitHub(base.Name, nombre) -- 🔥 AQUÍ SE AGREGA
+                        enviarServer(base.Name, nombre)
 
                         estado[key] = true
                     end
@@ -191,5 +151,5 @@ while true do
         end
     end
 
-    task.wait(4 + math.random())
+    task.wait(2) -- 🔥 más rápido
 end
