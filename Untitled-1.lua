@@ -57,10 +57,13 @@ local function enviarDiscord(base, nombres)
 
     local link = "https://www.roblox.com/games/start?placeId=109983668079237&gameInstanceId="..jobId
 
+    -- Convertir la lista de brainrots en lista vertical usando "\n"
+    local listaVertical = table.concat(nombres, "\n")
+
     local data = {
         ["embeds"] = {{
             ["title"] = "🔥 Brainrot Detectado",
-            ["description"] = "**"..table.concat(nombres, ", ").."** encontrado(s)",
+            ["description"] = "**Brainrots detectados:**\n"..listaVertical,
             ["color"] = 16711680,
 
             ["fields"] = {
@@ -71,7 +74,7 @@ local function enviarDiscord(base, nombres)
                 },
                 {
                     ["name"] = "🧠 Brainrots",
-                    ["value"] = table.concat(nombres, ", "),
+                    ["value"] = listaVertical,
                     ["inline"] = true
                 },
                 {
@@ -124,9 +127,9 @@ end
 
 -- 🔍 ESCANEO
 local function escanear()
-    local actual = {}
+    local actuales = {}
 
-    if not rutaBases then return actual end
+    if not rutaBases then return actuales end
 
     for _, base in ipairs(rutaBases:GetChildren()) do
         if base:IsA("Model") then
@@ -137,30 +140,39 @@ local function escanear()
                 if #encontrados > 0 then
                     table.insert(encontradosEnBase, nombre)
                     local key = base.Name .. "_" .. nombre
-                    actual[key] = true
+                    actuales[key] = true
+                end
+            end
+
+            -- 📢 Notificar solo brainrots nuevos en esta base
+            local nuevos = {}
+            for _, nombre in ipairs(encontradosEnBase) do
+                local key = base.Name .. "_" .. nombre
+                if not estado[key] then
+                    table.insert(nuevos, nombre)
                     estado[key] = true
                 end
             end
 
-            if #encontradosEnBase > 0 then
-                print("🔥 Detectado en base:", base.Name, table.concat(encontradosEnBase, ", "))
-                enviarDiscord(base.Name, encontradosEnBase)
+            if #nuevos > 0 then
+                print("🔥 Detectado en base:", base.Name, table.concat(nuevos, ", "))
+                enviarDiscord(base.Name, nuevos)
             end
         end
     end
 
-    return actual
-end
-
--- 🚀 LOOP
-while true do
-    local actuales = escanear()
-
+    -- 🔄 Limpiar keys que ya no existen
     for key, _ in pairs(estado) do
         if not actuales[key] then
             estado[key] = nil
         end
     end
 
+    return actuales
+end
+
+-- 🚀 LOOP
+while true do
+    escanear()
     task.wait(2)
 end
