@@ -8,7 +8,7 @@ local TeleportService = game:GetService("TeleportService")
 local WEBHOOK_URL = "https://discord.com/api/webhooks/1486898527979176078/l0yYukaA74r3abQqjmEr5mZd7D5L64b4zC5Zt_OLPbuGj1pabuanntEAGveeXpSA3bSz"
 
 -- 🔗 SERVER PYTHON (CAMBIA ESTO)
-local SERVER_URL = "http://localhost:8000/"
+local SERVER_URL = "http://localhost:5000/"
 
 local request = request or http_request or syn and syn.request or fluxus and fluxus.request
 
