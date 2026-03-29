@@ -66,10 +66,9 @@ local function enviarDiscord(base, nombres)
     local data = {
         ["embeds"] = {{
             ["title"] = "🔥 Brainrot Detectado",
-            ["description"] = "**Brainrots detectados:**\n"..listaEnumerada,
+            ["description"] = "**Brainrots detectados en " .. base .. ":**\n"..listaEnumerada,
             ["color"] = 16711680,
             ["fields"] = {
-                {["name"] = "📍 Base", ["value"] = base, ["inline"] = true},
                 {["name"] = "🆔 JobId", ["value"] = jobId, ["inline"] = false},
                 {["name"] = "🤖 Bot", ["value"] = LocalPlayer.Name, ["inline"] = true},
                 {["name"] = "🚀 Unirse", ["value"] = "[Click para entrar]("..link..")", ["inline"] = false}
@@ -113,7 +112,6 @@ local function escanear()
         if base:IsA("Model") then
             local encontradosEnBase = {}
 
-            -- buscar brainrots en la base
             for nombre, _ in pairs(INCLUDE) do
                 local encontrados = findAllChildrenByName(base, nombre)
                 if #encontrados > 0 then
@@ -123,7 +121,7 @@ local function escanear()
                 end
             end
 
-            -- filtrar los que son **nuevos**
+            -- Filtrar los que son nuevos
             local nuevos = {}
             for _, nombre in ipairs(encontradosEnBase) do
                 local key = base.Name.."_"..nombre
@@ -132,7 +130,6 @@ local function escanear()
                 end
             end
 
-            -- enviar notificación solo si hay nuevos
             if #nuevos > 0 then
                 enviarDiscord(base.Name, nuevos)
                 for _, nombre in ipairs(nuevos) do
@@ -143,7 +140,7 @@ local function escanear()
         end
     end
 
-    -- eliminar del estado los que ya no existen
+    -- Limpiar keys que ya no están presentes
     for key, _ in pairs(estado) do
         if not actuales[key] then
             estado[key] = nil
@@ -154,6 +151,10 @@ local function escanear()
 end
 
 -- 🚀 LOOP
+while true do
+    escanear()
+    task.wait(2)
+end
 while true do
     escanear()
     task.wait(2)
