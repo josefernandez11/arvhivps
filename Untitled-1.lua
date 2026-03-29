@@ -55,8 +55,6 @@ end)
 local function enviarDiscord(base, nombres)
     if not request then return end
 
-    local link = "https://www.roblox.com/games/start?placeId=109983668079237&gameInstanceId="..jobId
-
     -- Crear lista enumerada
     local listaEnumerada = ""
     for i, nombre in ipairs(nombres) do
@@ -66,12 +64,11 @@ local function enviarDiscord(base, nombres)
     local data = {
         ["embeds"] = {{
             ["title"] = "🔥 Brainrot Detectado",
-            ["description"] = "**Brainrots detectados en " .. base .. ":**\n"..listaEnumerada,
+            ["description"] = "**Brainrots detectados:**\n"..listaEnumerada,
             ["color"] = 16711680,
             ["fields"] = {
-                {["name"] = "🆔 JobId", ["value"] = jobId, ["inline"] = false},
                 {["name"] = "🤖 Bot", ["value"] = LocalPlayer.Name, ["inline"] = true},
-                {["name"] = "🚀 Unirse", ["value"] = "[Click para entrar]("..link..")", ["inline"] = false}
+                {["name"] = "🚀 Unirse", ["value"] = "[Click para entrar](https://www.roblox.com/games/start?placeId=109983668079237&gameInstanceId="..jobId..")", ["inline"] = false}
             },
             ["footer"] = {["text"] = "Cix Finder • Auto Scanner"}
         }}
@@ -151,10 +148,6 @@ local function escanear()
 end
 
 -- 🚀 LOOP
-while true do
-    escanear()
-    task.wait(2)
-end
 while true do
     escanear()
     task.wait(2)
