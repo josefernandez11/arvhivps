@@ -51,52 +51,31 @@ game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ChildAdded:Connect(func
     end
 end)
 
--- 📢 DISCORD (SIN ICONO)
+-- 📢 DISCORD
 local function enviarDiscord(base, nombres)
     if not request then return end
 
     local link = "https://www.roblox.com/games/start?placeId=109983668079237&gameInstanceId="..jobId
 
-    -- Convertir la lista de brainrots en lista vertical usando "\n"
-    local listaVertical = table.concat(nombres, "\n")
+    -- Crear lista enumerada
+    local listaEnumerada = ""
+    for i, nombre in ipairs(nombres) do
+        listaEnumerada = listaEnumerada .. i .. ". " .. nombre .. "\n"
+    end
 
     local data = {
         ["embeds"] = {{
             ["title"] = "🔥 Brainrot Detectado",
-            ["description"] = "**Brainrots detectados:**\n"..listaVertical,
+            ["description"] = "**Brainrots detectados:**\n"..listaEnumerada,
             ["color"] = 16711680,
-
             ["fields"] = {
-                {
-                    ["name"] = "📍 Base",
-                    ["value"] = base,
-                    ["inline"] = true
-                },
-                {
-                    ["name"] = "🧠 Brainrots",
-                    ["value"] = listaVertical,
-                    ["inline"] = true
-                },
-                {
-                    ["name"] = "🆔 JobId",
-                    ["value"] = jobId,
-                    ["inline"] = false
-                },
-                {
-                    ["name"] = "🤖 Bot",
-                    ["value"] = LocalPlayer.Name,
-                    ["inline"] = true
-                },
-                {
-                    ["name"] = "🚀 Unirse",
-                    ["value"] = "[Click para entrar]("..link..")",
-                    ["inline"] = false
-                }
+                {["name"] = "📍 Base", ["value"] = base, ["inline"] = true},
+                {["name"] = "🧠 Brainrots", ["value"] = listaEnumerada, ["inline"] = true},
+                {["name"] = "🆔 JobId", ["value"] = jobId, ["inline"] = false},
+                {["name"] = "🤖 Bot", ["value"] = LocalPlayer.Name, ["inline"] = true},
+                {["name"] = "🚀 Unirse", ["value"] = "[Click para entrar]("..link..")", ["inline"] = false}
             },
-
-            ["footer"] = {
-                ["text"] = "Cix Finder • Auto Scanner"
-            }
+            ["footer"] = {["text"] = "Cix Finder • Auto Scanner"}
         }}
     }
 
@@ -135,33 +114,37 @@ local function escanear()
         if base:IsA("Model") then
             local encontradosEnBase = {}
 
+            -- buscar brainrots en la base
             for nombre, _ in pairs(INCLUDE) do
                 local encontrados = findAllChildrenByName(base, nombre)
                 if #encontrados > 0 then
                     table.insert(encontradosEnBase, nombre)
-                    local key = base.Name .. "_" .. nombre
+                    local key = base.Name.."_"..nombre
                     actuales[key] = true
                 end
             end
 
-            -- 📢 Notificar solo brainrots nuevos en esta base
+            -- filtrar los que son **nuevos**
             local nuevos = {}
             for _, nombre in ipairs(encontradosEnBase) do
-                local key = base.Name .. "_" .. nombre
+                local key = base.Name.."_"..nombre
                 if not estado[key] then
                     table.insert(nuevos, nombre)
-                    estado[key] = true
                 end
             end
 
+            -- enviar notificación solo si hay nuevos
             if #nuevos > 0 then
-                print("🔥 Detectado en base:", base.Name, table.concat(nuevos, ", "))
                 enviarDiscord(base.Name, nuevos)
+                for _, nombre in ipairs(nuevos) do
+                    local key = base.Name.."_"..nombre
+                    estado[key] = true
+                end
             end
         end
     end
 
-    -- 🔄 Limpiar keys que ya no existen
+    -- eliminar del estado los que ya no existen
     for key, _ in pairs(estado) do
         if not actuales[key] then
             estado[key] = nil
