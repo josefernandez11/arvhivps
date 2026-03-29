@@ -16,7 +16,7 @@ local LocalPlayer = Players.LocalPlayer
 -- 📍 RUTA BASES
 local rutaBases = workspace:WaitForChild("Plots", 10)
 
--- 🧠 LISTA
+-- 🧠 LISTA DE BRAINROTS
 local INCLUDE = {
     ["Cerberus"]=true,["Headless Horseman"]=true,["Ketchuru and Musturu"]=true,
     ["Swaggy Bros"]=true,["Fragrama and Chocrama"]=true,["Ginger Gerat"]=true,
@@ -38,7 +38,7 @@ local INCLUDE = {
     ["Fortunu and Cashuru"]=true
 }
 
--- 🧠 MEMORIA (anti spam)
+-- 🧠 MEMORIA (anti-spam por aparición única)
 local estado = {}
 
 -- 🔄 AUTO REJOIN
@@ -51,11 +51,11 @@ game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ChildAdded:Connect(func
     end
 end)
 
--- 📢 DISCORD
+-- 📢 FUNCION PARA ENVIAR A DISCORD
 local function enviarDiscord(base, nombres)
     if not request then return end
 
-    -- Formato de lista en bloque de código para copiar fácilmente
+    -- Lista enumerada en bloque de código
     local listaEnumerada = "```\n"
     for i, nombre in ipairs(nombres) do
         listaEnumerada = listaEnumerada .. i .. ". " .. nombre .. "\n"
@@ -64,7 +64,7 @@ local function enviarDiscord(base, nombres)
 
     local data = {
         ["embeds"] = {{
-            ["title"] = "🔥 Brainrot Detectado",
+            ["title"] = "🔥 Brainrots Detectados",
             ["description"] = listaEnumerada,
             ["color"] = 16711680,
             ["fields"] = {
@@ -86,7 +86,7 @@ local function enviarDiscord(base, nombres)
     end)
 end
 
--- 🔍 FUNCIÓN RECURSIVA PARA ENCONTRAR TODOS LOS HIJOS POR NOMBRE
+-- 🔍 BUSQUEDA RECURSIVA DE TODOS LOS HIJOS CON UN NOMBRE
 local function findAllChildrenByName(parent, targetName)
     local results = {}
     for _, child in ipairs(parent:GetChildren()) do
@@ -101,7 +101,7 @@ local function findAllChildrenByName(parent, targetName)
     return results
 end
 
--- 🔍 ESCANEO
+-- 🔍 ESCANEO DE BASES
 local function escanear()
     local actuales = {}
 
@@ -111,34 +111,33 @@ local function escanear()
         if base:IsA("Model") then
             local encontradosEnBase = {}
 
+            -- Buscar todos los brainrots en INCLUDE
             for nombre, _ in pairs(INCLUDE) do
                 local encontrados = findAllChildrenByName(base, nombre)
-                for _ = 1, #encontrados do
-                    table.insert(encontradosEnBase, nombre) -- agrega repetidos
-                    local key = base.Name.."_"..nombre
+                for i = 1, #encontrados do
+                    table.insert(encontradosEnBase, nombre) -- agregar repetidos
+                    local key = base.Name.."_"..nombre.."_"..i -- clave única por aparición
                     actuales[key] = true
                 end
             end
 
-            -- Filtrar los que son nuevos
+            -- Filtrar los que son nuevos para notificar
             local nuevos = {}
-            for _, nombre in ipairs(encontradosEnBase) do
-                local key = base.Name.."_"..nombre
+            for i, nombre in ipairs(encontradosEnBase) do
+                local key = base.Name.."_"..nombre.."_"..i
                 if not estado[key] then
                     table.insert(nuevos, nombre)
+                    estado[key] = true
                 end
             end
 
             if #nuevos > 0 then
                 enviarDiscord(base.Name, nuevos)
-                for _, nombre in ipairs(nuevos) do
-                    local key = base.Name.."_"..nombre
-                    estado[key] = true
-                end
             end
         end
     end
 
+    -- Limpiar estado de brainrots que ya no están
     for key, _ in pairs(estado) do
         if not actuales[key] then
             estado[key] = nil
@@ -148,7 +147,7 @@ local function escanear()
     return actuales
 end
 
--- 🚀 LOOP
+-- 🚀 LOOP PRINCIPAL
 while true do
     escanear()
     task.wait(2)
