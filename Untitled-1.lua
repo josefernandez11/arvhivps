@@ -55,16 +55,17 @@ end)
 local function enviarDiscord(base, nombres)
     if not request then return end
 
-    -- Crear lista enumerada
-    local listaEnumerada = ""
+    -- Formato de lista en bloque de código para copiar fácilmente
+    local listaEnumerada = "```\n"
     for i, nombre in ipairs(nombres) do
         listaEnumerada = listaEnumerada .. i .. ". " .. nombre .. "\n"
     end
+    listaEnumerada = listaEnumerada .. "```"
 
     local data = {
         ["embeds"] = {{
             ["title"] = "🔥 Brainrot Detectado",
-            ["description"] = "**Brainrots detectados:**\n"..listaEnumerada,
+            ["description"] = listaEnumerada,
             ["color"] = 16711680,
             ["fields"] = {
                 {["name"] = "🤖 Bot", ["value"] = LocalPlayer.Name, ["inline"] = true},
@@ -118,7 +119,6 @@ local function escanear()
                 end
             end
 
-            -- Filtrar los que son nuevos
             local nuevos = {}
             for _, nombre in ipairs(encontradosEnBase) do
                 local key = base.Name.."_"..nombre
@@ -137,7 +137,6 @@ local function escanear()
         end
     end
 
-    -- Limpiar keys que ya no están presentes
     for key, _ in pairs(estado) do
         if not actuales[key] then
             estado[key] = nil
