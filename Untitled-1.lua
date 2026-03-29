@@ -35,7 +35,7 @@ local INCLUDE = {
     ["Money Money Puggy"]=true,["Nuclearo Dinossauro"]=true,["Esok Sekolah"]=true,
     ["Spaghetti Tualetti"]=true,["Burguro and Fryuro"]=true,["Chicleteira Noelteira"]=true,
     ["Cloverat Clapat"]=true,["Foxini Lanternini"]=true,["Los Spooky Combinasionas"]=true,
-    ["Fortunu and Cashuru"]=true
+    ["Fortunu and Cashuru"]=true,["Nacho Spyder"]=true
 }
 
 -- 🧠 MEMORIA (anti spam)
