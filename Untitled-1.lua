@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 
 -- 🔗 WEBHOOK
-local WEBHOOK_URL = "https://discord.com/api/webhooks/1486898527979176078/l0yYukaA74r3abQqjmEr5mZd7D5L64b4zC5Zt_OLPbuGj1pabuanntEAGveeXpSA3bSz"
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1486898527979176078/l0yYukaA74r3abQqjmEr5mZd7D5L64b4zC5Zt_OLPbuGj1pabuanntEAGveeXpSA3bSz" 
 
 local request = request or http_request or (syn and syn.request) or (fluxus and fluxus.request)
 
@@ -109,25 +109,21 @@ local function escanear()
 
     for _, base in ipairs(rutaBases:GetChildren()) do
         if base:IsA("Model") then
-            local encontradosEnBase = {}
+            local nuevos = {}
 
-            -- Buscar todos los brainrots en INCLUDE
             for nombre, _ in pairs(INCLUDE) do
                 local encontrados = findAllChildrenByName(base, nombre)
-                for i = 1, #encontrados do
-                    table.insert(encontradosEnBase, nombre) -- agregar repetidos
-                    local key = base.Name.."_"..nombre.."_"..i -- clave única por aparición
-                    actuales[key] = true
-                end
-            end
+                for _, obj in ipairs(encontrados) do
+                    local key = tostring(obj:GetDebugId()) -- clave única real por instancia
 
-            -- Filtrar los que son nuevos para notificar
-            local nuevos = {}
-            for i, nombre in ipairs(encontradosEnBase) do
-                local key = base.Name.."_"..nombre.."_"..i
-                if not estado[key] then
-                    table.insert(nuevos, nombre)
-                    estado[key] = true
+                    -- si no estaba en estado, agregar a nuevos
+                    if not estado[key] then
+                        table.insert(nuevos, nombre)
+                        estado[key] = true
+                    end
+
+                    -- marcar como presente
+                    actuales[key] = true
                 end
             end
 
