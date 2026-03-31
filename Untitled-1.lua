@@ -17,7 +17,7 @@ local jobId = game.JobId
 local rutaBases = workspace:WaitForChild("Plots")
 local rutaPasarela = workspace:FindFirstChild("RenderedMovingAnimals")
 
--- 🎯 LISTA
+-- 🎯 LISTA DE BRAINROTS
 local lbuscar = {
     "Bacuru and Egguru","Los Combinasionas","Esok Sekolah","Espaguetis Tualetti",
     "Cerberus","La Taco Combinasion","Ketchuru and Musturu","Swaggy Bros",
@@ -35,10 +35,8 @@ local lbuscar = {
     "La Secret Combinasion","Cooki and Milki"
 }
 
--- 🧠 MEMORIA REAL
+-- 🧠 MEMORIA PARA EVITAR SPAM
 local yaNotificado = {}
-local tiempoNotificado = {}
-local COOLDOWN = 15 -- segundos entre notificaciones para la misma base
 
 --------------------------------------------------
 -- 🛑 ANTI-AFK
@@ -49,12 +47,11 @@ Players.LocalPlayer.Idled:Connect(function()
 end)
 
 --------------------------------------------------
--- 📢 DISCORD EMBED
+-- 📢 FUNCIÓN PARA ENVIAR EMBED A DISCORD
 local function enviarDiscord(lista)
     if not request then return end
     local LocalPlayer = Players.LocalPlayer
 
-    -- Convertimos la lista en texto enumerado
     local listaEnumerada = ""
     for i, v in ipairs(lista) do
         listaEnumerada = listaEnumerada .. i .. ". " .. v .. "\n"
@@ -87,30 +84,25 @@ local function enviarDiscord(lista)
 end
 
 --------------------------------------------------
--- 🔍 DETECTAR
+-- 🔍 FUNCIÓN PARA DETECTAR BASES Y BRAINROTS
 local function detectar()
     local resultado = {}
 
-    if rutaBases then
-        for _, base in ipairs(rutaBases:GetChildren()) do
-            if base:IsA("Model") then
-                local encontrados = {}
+    for _, base in ipairs(rutaBases:GetChildren()) do
+        if base:IsA("Model") then
+            local encontrados = {}
 
-                for _, v in ipairs(lbuscar) do
-                    if base:FindFirstChild(v, true) then
-                        table.insert(encontrados, v)
-                    end
+            for _, v in ipairs(lbuscar) do
+                if base:FindFirstChild(v, true) then
+                    table.insert(encontrados, v)
                 end
+            end
 
-                if #encontrados > 0 then
-                    table.sort(encontrados)
-                    local key = base:GetDebugId() .. "_" .. #encontrados
-
-                    resultado[key] = {
-                        base = base.Name,
-                        lista = encontrados
-                    }
-                end
+            if #encontrados > 0 then
+                resultado[base.Name] = {
+                    base = base.Name,
+                    lista = encontrados
+                }
             end
         end
     end
@@ -119,31 +111,27 @@ local function detectar()
 end
 
 --------------------------------------------------
--- 🚀 LOOP PRINCIPAL
+-- 🚀 LOOP PRINCIPAL SIN SPAM
 task.wait(3)
 
 while true do
     print("🔍 Escaneando...")
 
     local actuales = detectar()
-    local ahora = tick()
 
-    -- ✅ NOTIFICAR SOLO NUEVOS O COOLDOWN
-    for key, data in pairs(actuales) do
-        if not yaNotificado[key] or (tiempoNotificado[key] and ahora - tiempoNotificado[key] > COOLDOWN) then
+    -- ✅ NOTIFICAR NUEVAS BASES
+    for baseName, data in pairs(actuales) do
+        if not yaNotificado[baseName] then
             print("🔥 NUEVO:", data.base)
             enviarDiscord(data.lista)
-
-            yaNotificado[key] = true
-            tiempoNotificado[key] = ahora
+            yaNotificado[baseName] = true
         end
     end
 
-    -- 🧹 LIMPIAR LOS QUE YA NO EXISTEN
-    for key, _ in pairs(yaNotificado) do
-        if not actuales[key] then
-            yaNotificado[key] = nil
-            tiempoNotificado[key] = nil
+    -- 🧹 LIMPIAR LAS BASES QUE DESAPARECEN
+    for baseName, _ in pairs(yaNotificado) do
+        if not actuales[baseName] then
+            yaNotificado[baseName] = nil
         end
     end
 
