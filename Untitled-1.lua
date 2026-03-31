@@ -1,66 +1,57 @@
 repeat task.wait() until game:IsLoaded()
 
 local HttpService = game:GetService("HttpService")
+local VirtualUser = game:GetService("VirtualUser")
 local Players = game:GetService("Players")
-local TeleportService = game:GetService("TeleportService")
 
 -- 🔗 WEBHOOK
-local WEBHOOK_URL = "https://discord.com/api/webhooks/1486898527979176078/l0yYukaA74r3abQqjmEr5mZd7D5L64b4zC5Zt_OLPbuGj1pabuanntEAGveeXpSA3bSz" 
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1485119599610564609/Bi3AMAKqmgd-gBYl2RixwIeXjwtcAHaPAFsa9fF3fVGU11Mr7xBTNezSV0k72J2FrPDY"
 
-local request = request or http_request or (syn and syn.request) or (fluxus and fluxus.request)
+local request = request or http_request or syn and syn.request
 
 -- 🎮 INFO
+local placeId = 109983668079237
 local jobId = game.JobId
-local LocalPlayer = Players.LocalPlayer
 
--- 📍 RUTA BASES
-local rutaBases = workspace:WaitForChild("Plots", 10)
+-- 📍 RUTAS
+local rutaBases = workspace:FindFirstChild("Plots")
+local rutaPasarela = workspace:FindFirstChild("RenderedMovingAnimals")
 
--- 🧠 LISTA DE BRAINROTS
-local INCLUDE = {
-    ["Cerberus"]=true,["Headless Horseman"]=true,["Ketchuru and Musturu"]=true,
-    ["Swaggy Bros"]=true,["Fragrama and Chocrama"]=true,["Ginger Gerat"]=true,
-    ["Spooky and Pumpky"]=true,["Hydra Dragon Cannelloni"]=true,["Meowl"]=true,
-    ["Los Spaghettis"]=true,["Los Sekolahs"]=true,["Cooki and Milki"]=true,
-    ["Festive 67"]=true,["Garama and Madundung"]=true,["Dragon Gingerini"]=true,
-    ["Tang Tang Keletang"]=true,["La Food Combinasion"]=true,["Rosey and Teddy"]=true,
-    ["Capitano Moby"]=true,["Tang Tang Kelentang"]=true,["Tralaledon"]=true,
-    ["La Supreme Combinasion"]=true,["Ketupat Kepat"]=true,["Skibidi Toilet"]=true,
-    ["Ketupat Bros"]=true,["Eviledon"]=true,["Tictac Sahur"]=true,
-    ["Lavadorito Spinito"]=true,["Chillin Chili"]=true,["Dragon Cannelloni"]=true,
-    ["Popcuru and Fizzuru"]=true,["La Casa Boo"]=true,["La Taco Combinasion"]=true,
-    ["Orcaledon"]=true,["Chipso and Queso"]=true,["Strawberry Elephant"]=true,
-    ["W or L"]=true,["La Secret Combinasion"]=true,["La Romantic Grande"]=true,
-    ["Los Combinasionas"]=true,["Mariachi Corazón"]=true,["La Extinct Grande"]=true,
-    ["Money Money Puggy"]=true,["Nuclearo Dinossauro"]=true,["Esok Sekolah"]=true,
-    ["Spaghetti Tualetti"]=true,["Burguro and Fryuro"]=true,["Chicleteira Noelteira"]=true,
-    ["Cloverat Clapat"]=true,["Foxini Lanternini"]=true,["Los Spooky Combinasionas"]=true,
-    ["Fortunu and Cashuru"]=true
+-- 🎯 LISTA
+local lbuscar = {
+"Bacuru and Egguru","Los Combinasionas","Esok Sekolah","Espaguetis Tualetti",
+"Cerberus","La Taco Combinasion","Ketchuru and Musturu","Swaggy Bros",
+"Burguro And Fryuro","Nuclearo Dinossauro","Ginger Gerat","Spooky and Pumpky",
+"Los Amigos","Los Bros","Tuff Toucan","Meowl","Los Spaghettis","Festive 67",
+"Tictac Sahur","Money Money Puggy","Ketupat Kepat","Garama and Madundung",
+"Reinito Sleighito","Hydra Dragon Cannelloni","Dragon Gingerini","Hokka Horloge",
+"La Supreme Combinasion","Fragrama and Chocrama","Tang Tang Keletang",
+"La Food Combinasion","Rosey and Teddy","Rosetti Tualetti","Chillin Chili",
+"Las Sis","Capitano Moby","Los Tacorites","Los Tacoritas","Skibidi Toilet",
+"Ketupat Bros","W or L","Tang Tang Kelentang","Eviledon","Swag Soda",
+"Lavadorito Spinito","La Ginger Sekolah","Dragon Cannelloni",
+"Popcuru and Fizzuru","La Casa Boo","Headless Horseman","La Romantic Grande",
+"Chipso and Queso","Strawberry Elephant","Los Puggies",
+"La Secret Combinasion","Cooki and Milki"
 }
 
--- 🧠 MEMORIA (anti-spam por aparición única)
-local estado = {}
+-- 🧠 MEMORIA REAL
+local yaNotificado = {}
 
--- 🔄 AUTO REJOIN
-game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ChildAdded:Connect(function(child)
-    if child.Name == "ErrorPrompt" then
-        task.wait(3)
-        pcall(function()
-            TeleportService:Teleport(game.PlaceId, LocalPlayer)
-        end)
-    end
+--------------------------------------------------
+-- 🛑 ANTI-AFK
+Players.LocalPlayer.Idled:Connect(function()
+    VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+    task.wait(1)
+    VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
 end)
 
--- 📢 FUNCION PARA ENVIAR A DISCORD
-local function enviarDiscord(base, nombres)
+--------------------------------------------------
+-- 📢 DISCORD
+local function enviarDiscord(texto)
     if not request then return end
 
-    -- Lista enumerada en bloque de código
-    local listaEnumerada = "```\n"
-    for i, nombre in ipairs(nombres) do
-        listaEnumerada = listaEnumerada .. i .. ". " .. nombre .. "\n"
-    end
-    listaEnumerada = listaEnumerada .. "```"
+    local linkDirecto = "https://www.roblox.com/games/start?placeId=109983668079237&gameInstanceId="..jobId
 
     local data = {
         ["embeds"] = {{
@@ -76,75 +67,85 @@ local function enviarDiscord(base, nombres)
         }}
     }
 
+    local json = HttpService:JSONEncode(data)
+
     pcall(function()
         request({
             Url = WEBHOOK_URL,
             Method = "POST",
             Headers = {["Content-Type"] = "application/json"},
-            Body = HttpService:JSONEncode(data)
+            Body = json
         })
     end)
 end
 
--- 🔍 BUSQUEDA RECURSIVA DE TODOS LOS HIJOS CON UN NOMBRE
-local function findAllChildrenByName(parent, targetName)
-    local results = {}
-    for _, child in ipairs(parent:GetChildren()) do
-        if child.Name == targetName then
-            table.insert(results, child)
-        end
-        local deeper = findAllChildrenByName(child, targetName)
-        for _, v in ipairs(deeper) do
-            table.insert(results, v)
-        end
+--------------------------------------------------
+-- 🔍 DETECTAR
+local function detectar()
+    local resultado = {}
+
+    if rutaBases then
+        for _, base in ipairs(rutaBases:GetChildren()) do
+            if base:IsA("Model") then
+                local encontrados = {}
     end
-    return results
+
+    task.wait(3)
 end
 
--- 🔍 ESCANEO DE BASES
-local function escanear()
-    local actuales = {}
-
-    if not rutaBases then return actuales end
-
-    for _, base in ipairs(rutaBases:GetChildren()) do
-        if base:IsA("Model") then
-            local nuevos = {}
-
-            for nombre, _ in pairs(INCLUDE) do
-                local encontrados = findAllChildrenByName(base, nombre)
-                for _, obj in ipairs(encontrados) do
-                    local key = tostring(obj:GetDebugId()) -- clave única real por instancia
-
-                    -- si no estaba en estado, agregar a nuevos
-                    if not estado[key] then
-                        table.insert(nuevos, nombre)
-                        estado[key] = true
+                for _, v in ipairs(lbuscar) do
+                    if base:FindFirstChild(v, true) then
+                        table.insert(encontrados, v)
                     end
+                end
 
-                    -- marcar como presente
-                    actuales[key] = true
+                if #encontrados > 0 then
+                    table.sort(encontrados)
+                    local key = base.Name .. "_" .. table.concat(encontrados, ",")
+
+                    resultado[key] = {
+                        base = base.Name,
+                        lista = encontrados
+                    }
                 end
             end
-
-            if #nuevos > 0 then
-                enviarDiscord(base.Name, nuevos)
-            end
         end
     end
 
-    -- Limpiar estado de brainrots que ya no están
-    for key, _ in pairs(estado) do
-        if not actuales[key] then
-            estado[key] = nil
-        end
-    end
-
-    return actuales
+    return resultado
 end
 
--- 🚀 LOOP PRINCIPAL
+--------------------------------------------------
+-- 🚀 LOOP
+task.wait(3)
+
 while true do
-    escanear()
-    task.wait(2)
+    print("🔍 Escaneando...")
+
+    local actuales = detectar()
+
+    -- ✅ NOTIFICAR SOLO NUEVOS
+    for key, data in pairs(actuales) do
+        if not yaNotificado[key] then
+            local texto = "📍 Base: "..data.base.."\n\n"
+
+            for _, v in ipairs(data.lista) do
+                texto = texto .. "• "..v.."\n"
+            end
+
+            print("🔥 NUEVO:", data.base)
+            enviarDiscord(texto)
+
+            yaNotificado[key] = true
+        end
+    end
+
+    -- 🧹 LIMPIAR LOS QUE YA NO EXISTEN
+    for key, _ in pairs(yaNotificado) do
+        if not actuales[key] then
+            yaNotificado[key] = nil
+        end
+    end
+
+    task.wait(3)
 end
