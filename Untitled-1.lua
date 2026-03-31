@@ -20,7 +20,7 @@ local rutaPasarela = workspace:FindFirstChild("RenderedMovingAnimals")
 
 -- 🎯 LISTA DE BRAINROTS
 local lbuscar = {
-    "Bacuru and Egguru","Los Combinasionas","Esok Sekolah","Espaguetis Tualetti",
+    "Bacuru and Egguru","Los Combinasionas","Esok Sekolah","Spaghetti Tualetti",
     "Cerberus","La Taco Combinasion","Ketchuru and Musturu","Swaggy Bros",
     "Burguro And Fryuro","Nuclearo Dinossauro","Ginger Gerat","Spooky and Pumpky",
     "Los Amigos","Los Bros","Tuff Toucan","Meowl","Los Spaghettis","Festive 67",
