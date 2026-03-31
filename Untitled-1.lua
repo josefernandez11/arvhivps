@@ -20,7 +20,8 @@ local rutaPasarela = workspace:FindFirstChild("RenderedMovingAnimals")
 
 -- 🎯 LISTA DE BRAINROTS
 local lbuscar = {
-    "Bacuru and Egguru","Los Combinasionas","Esok Sekolah","Spaghetti Tualetti",
+    local lbuscar = {
+    "Bacuru and Egguru","Los Combinasionas","Esok Sekolah","Espaguetis Tualetti",
     "Cerberus","La Taco Combinasion","Ketchuru and Musturu","Swaggy Bros",
     "Burguro And Fryuro","Nuclearo Dinossauro","Ginger Gerat","Spooky and Pumpky",
     "Los Amigos","Los Bros","Tuff Toucan","Meowl","Los Spaghettis","Festive 67",
@@ -30,10 +31,20 @@ local lbuscar = {
     "La Food Combinasion","Rosey and Teddy","Rosetti Tualetti","Chillin Chili",
     "Las Sis","Capitano Moby","Los Tacorites","Los Tacoritas","Skibidi Toilet",
     "Ketupat Bros","W or L","Tang Tang Kelentang","Eviledon","Swag Soda",
-    "Lavadorito Spinito","La Ginger Sekolah","Dragon Cannelloni",
+    "Lavadorito Spinito","La Ginger Sekolah",
     "Popcuru and Fizzuru","La Casa Boo","Headless Horseman","La Romantic Grande",
     "Chipso and Queso","Strawberry Elephant","Los Puggies",
-    "La Secret Combinasion","Cooki and Milki"
+    "La Secret Combinasion","Cooki and Milki",
+    "Chicleteira Noelteira","Fishino Clownino","Tacorita Bicicleta",
+    "Money Money Reindeer","Los Planitos","Snailo Clovero","Celularcini Viciosini",
+    "Gobblino Uniciclino","Mieteteira Bicicleteira","La Spooky Grande",
+    "Los Jolly Combinasionas","Cigno Fulgoro","Los Spooky Combinasionas",
+    "Tralaledon","Los Cupids","La Jolly Grande","Los Primos","Lovin Rose",
+    "Dug Dug Dug","Orcaledon","Jolly Jolly Sahur","Gold Gold Gold",
+    "Nacho Spyder","Cloverat Clapat","Ventoliero Pavonero","Sammyni Fattini",
+    "Los Sekolahs","Foxini Lanternini","Fortunu and Cashuru","Celestial Pegasus",
+    "Love Love Bear","Griffin"
+}
 }
 
 -- 🧠 MEMORIA PARA EVITAR SPAM
