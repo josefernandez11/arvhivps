@@ -3,6 +3,7 @@ repeat task.wait() until game:IsLoaded()
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
 local Players = game:GetService("Players")
+local TeleportService = game:GetService("TeleportService")
 
 -- 🔗 WEBHOOK
 local WEBHOOK_URL = "https://discord.com/api/webhooks/1486898527979176078/l0yYukaA74r3abQqjmEr5mZd7D5L64b4zC5Zt_OLPbuGj1pabuanntEAGveeXpSA3bSz"
@@ -109,6 +110,16 @@ local function detectar()
 
     return resultado
 end
+
+--------------------------------------------------
+-- 🚀 REJOIN AUTOMÁTICO CADA 10 MINUTOS
+spawn(function()
+    while true do
+        task.wait(600) -- 600 segundos = 10 minutos
+        print("⏳ Rejoining por seguridad...")
+        TeleportService:TeleportToPlaceInstance(placeId, jobId, Players.LocalPlayer)
+    end
+end)
 
 --------------------------------------------------
 -- 🚀 LOOP PRINCIPAL SIN SPAM
