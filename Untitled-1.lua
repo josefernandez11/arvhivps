@@ -20,7 +20,6 @@ local rutaPasarela = workspace:FindFirstChild("RenderedMovingAnimals")
 
 -- 🎯 LISTA DE BRAINROTS
 local lbuscar = {
-    local lbuscar = {
     "Bacuru and Egguru","Los Combinasionas","Esok Sekolah","Espaguetis Tualetti",
     "Cerberus","La Taco Combinasion","Ketchuru and Musturu","Swaggy Bros",
     "Burguro And Fryuro","Nuclearo Dinossauro","Ginger Gerat","Spooky and Pumpky",
@@ -44,7 +43,6 @@ local lbuscar = {
     "Nacho Spyder","Cloverat Clapat","Ventoliero Pavonero","Sammyni Fattini",
     "Los Sekolahs","Foxini Lanternini","Fortunu and Cashuru","Celestial Pegasus",
     "Love Love Bear","Griffin"
-}
 }
 
 -- 🧠 MEMORIA PARA EVITAR SPAM
@@ -103,10 +101,12 @@ local function detectar()
     for _, base in ipairs(rutaBases:GetChildren()) do
         if base:IsA("Model") then
             local encontrados = {}
+            local encontradosSet = {}
 
             for _, v in ipairs(lbuscar) do
-                if base:FindFirstChild(v, true) then
+                if base:FindFirstChild(v, true) and not encontradosSet[v] then
                     table.insert(encontrados, v)
+                    encontradosSet[v] = true
                 end
             end
 
@@ -133,12 +133,10 @@ spawn(function()
 end)
 
 --------------------------------------------------
--- 🚀 LOOP PRINCIPAL SIN SPAM
+-- 🚀 LOOP PRINCIPAL SIN SPAM, ESCANEO CADA 2 SEGUNDOS
 task.wait(3)
 
 while true do
-    print("🔍 Escaneando...")
-
     local actuales = detectar()
 
     -- ✅ NOTIFICAR NUEVAS BASES
@@ -157,5 +155,5 @@ while true do
         end
     end
 
-    task.wait(3)
+    task.wait(2) -- 🔄 ESCANEO CADA 2 SEGUNDOS
 end
