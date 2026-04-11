@@ -1,159 +1,118 @@
-repeat task.wait() until game:IsLoaded()
+---------------- CONFIG ----------------
 
-local HttpService = game:GetService("HttpService")
-local VirtualUser = game:GetService("VirtualUser")
-local Players = game:GetService("Players")
-local TeleportService = game:GetService("TeleportService")
+local LOCAL_API_URL = "https://webhook-roblox.josefernandezxd4.workers.dev/"
 
--- 🔗 WEBHOOK
-local WEBHOOK_URL = "https://discord.com/api/webhooks/1486898527979176078/l0yYukaA74r3abQqjmEr5mZd7D5L64b4zC5Zt_OLPbuGj1pabuanntEAGveeXpSA3bSz"
-
-local request = request or http_request or (syn and syn.request)
-
--- 🎮 INFO
-local placeId = 109983668079237
-local jobId = game.JobId
-
--- 📍 RUTAS
-local rutaBases = workspace:WaitForChild("Plots")
-local rutaPasarela = workspace:FindFirstChild("RenderedMovingAnimals")
-
--- 🎯 LISTA DE BRAINROTS
-local lbuscar = {
-    "Bacuru and Egguru","Los Combinasionas","Esok Sekolah","Espaguetis Tualetti",
-    "Cerberus","La Taco Combinasion","Ketchuru and Musturu","Swaggy Bros",
-    "Burguro And Fryuro","Nuclearo Dinossauro","Ginger Gerat","Spooky and Pumpky",
-    "Los Amigos","Los Bros","Tuff Toucan","Meowl","Los Spaghettis","Festive 67",
-    "Tictac Sahur","Money Money Puggy","Ketupat Kepat","Garama and Madundung",
-    "Reinito Sleighito","Hydra Dragon Cannelloni","Dragon Gingerini","Hokka Horloge",
-    "La Supreme Combinasion","Fragrama and Chocrama","Tang Tang Keletang",
-    "La Food Combinasion","Rosey and Teddy","Rosetti Tualetti","Chillin Chili",
-    "Las Sis","Capitano Moby","Los Tacorites","Los Tacoritas","Skibidi Toilet",
-    "Ketupat Bros","W or L","Tang Tang Kelentang","Eviledon","Swag Soda",
-    "Lavadorito Spinito","La Ginger Sekolah",
-    "Popcuru and Fizzuru","La Casa Boo","Headless Horseman","La Romantic Grande",
-    "Chipso and Queso","Strawberry Elephant","Los Puggies",
-    "La Secret Combinasion","Cooki and Milki",
-    "Chicleteira Noelteira","Fishino Clownino","Tacorita Bicicleta",
-    "Money Money Reindeer","Los Planitos","Snailo Clovero","Celularcini Viciosini",
-    "Gobblino Uniciclino","Mieteteira Bicicleteira","La Spooky Grande",
-    "Los Jolly Combinasionas","Cigno Fulgoro","Los Spooky Combinasionas",
-    "Tralaledon","Los Cupids","La Jolly Grande","Los Primos","Lovin Rose",
-    "Dug Dug Dug","Orcaledon","Jolly Jolly Sahur","Gold Gold Gold",
-    "Nacho Spyder","Cloverat Clapat","Ventoliero Pavonero","Sammyni Fattini",
-    "Los Sekolahs","Foxini Lanternini","Fortunu and Cashuru","Celestial Pegasus",
-    "Love Love Bear","Griffin"
+-- 🔥 RUTAS (AJUSTA SI ES NECESARIO)
+local SCAN_ROOTS = {
+    game:GetService("Players").LocalPlayer.PlayerGui,
+    workspace
 }
 
--- 🧠 MEMORIA PARA EVITAR SPAM
-local yaNotificado = {}
+--------------------------------------
 
---------------------------------------------------
--- 🛑 ANTI-AFK
-Players.LocalPlayer.Idled:Connect(function()
-    VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-    task.wait(1)
-    VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-end)
+local HttpService = game:GetService("HttpService")
 
---------------------------------------------------
--- 📢 FUNCIÓN PARA ENVIAR EMBED A DISCORD
-local function enviarDiscord(lista)
-    if not request then return end
-    local LocalPlayer = Players.LocalPlayer
+local request =
+    (syn and syn.request) or
+    (http and http.request) or
+    request
 
-    local listaEnumerada = ""
-    for i, v in ipairs(lista) do
-        listaEnumerada = listaEnumerada .. i .. ". " .. v .. "\n"
-    end
-
-    local data = {
-        ["embeds"] = {{
-            ["title"] = "🔥 Brainrots Detectados",
-            ["description"] = listaEnumerada,
-            ["color"] = 16711680,
-            ["fields"] = {
-                {["name"] = "🤖 Bot", ["value"] = LocalPlayer.Name, ["inline"] = true},
-                {["name"] = "🆔 JobId", ["value"] = jobId, ["inline"] = true},
-                {["name"] = "🚀 Unirse", ["value"] = "[Click para entrar](https://www.roblox.com/games/start?placeId="..placeId.."&gameInstanceId="..jobId..")", ["inline"] = false}
-            },
-            ["footer"] = {["text"] = "Cix Finder • Auto Scanner"}
-        }}
-    }
-
-    local json = HttpService:JSONEncode(data)
-
-    pcall(function()
-        request({
-            Url = WEBHOOK_URL,
-            Method = "POST",
-            Headers = {["Content-Type"] = "application/json"},
-            Body = json
-        })
-    end)
+if not request then
+    warn("❌ No hay request")
+    return
 end
 
 --------------------------------------------------
--- 🔍 FUNCIÓN PARA DETECTAR BASES Y BRAINROTS
-local function detectar()
-    local resultado = {}
+-- PARSE
+--------------------------------------------------
+local function parseProduction(text)
+    local n, u = text:match("%$([%d%.]+)%s*([MBT])%s*/s")
+    if not n then return end
+    n = tonumber(n)
+    if u == "M" then return n * 1e6 end
+    if u == "B" then return n * 1e9 end
+    if u == "T" then return n * 1e12 end
+end
 
-    for _, base in ipairs(rutaBases:GetChildren()) do
-        if base:IsA("Model") then
-            local encontrados = {}
-            local encontradosSet = {}
+--------------------------------------------------
+-- SCAN USANDO RUTAS
+--------------------------------------------------
+local function scan()
+    local list = {}
 
-            for _, v in ipairs(lbuscar) do
-                if base:FindFirstChild(v, true) and not encontradosSet[v] then
-                    table.insert(encontrados, v)
-                    encontradosSet[v] = true
+    for _,root in ipairs(SCAN_ROOTS) do
+        if root then
+            for _,ui in ipairs(root:GetDescendants()) do
+                if ui:IsA("TextLabel") then
+                    local value = parseProduction(ui.Text)
+
+                    if value then
+                        local parent = ui.Parent
+
+                        for _,c in ipairs(parent:GetChildren()) do
+                            if c:IsA("TextLabel") and not c.Text:find("%$") then
+                                table.insert(list, {
+                                    name = c.Text,
+                                    value = value
+                                })
+                                break
+                            end
+                        end
+                    end
                 end
             end
+        end
+    end
 
-            if #encontrados > 0 then
-                resultado[base.Name] = {
-                    base = base.Name,
-                    lista = encontrados
-                }
+    return list
+end
+
+--------------------------------------------------
+-- LOOP TEST
+--------------------------------------------------
+task.spawn(function()
+    while true do
+        local result = scan()
+
+        print("🔍 SCAN:", #result)
+
+        for _,v in ipairs(result) do
+            print("•", v.name, v.value)
+        end
+
+        if #result > 0 then
+            local v = result[1]
+
+            local payload = {
+                name = v.name,
+                value = math.floor(v.value),
+                jobId = game.JobId,
+                placeId = game.PlaceId
+            }
+
+            print("📤 Enviando:", payload.name, payload.value)
+
+            local ok, res = pcall(function()
+                return request({
+                    Url = LOCAL_API_URL,
+                    Method = "POST",
+                    Headers = {
+                        ["Content-Type"] = "application/json"
+                    },
+                    Body = HttpService:JSONEncode(payload)
+                })
+            end)
+
+            print("RESULT:", ok)
+
+            if res then
+                print("STATUS:", res.StatusCode)
+                print("BODY:", res.Body)
+            else
+                print("❌ No response")
             end
         end
-    end
 
-    return resultado
-end
-
---------------------------------------------------
--- 🚀 REJOIN AUTOMÁTICO CADA 10 MINUTOS
-spawn(function()
-    while true do
-        task.wait(600) -- 600 segundos = 10 minutos
-        print("⏳ Rejoining por seguridad...")
-        TeleportService:TeleportToPlaceInstance(placeId, jobId, Players.LocalPlayer)
+        task.wait(3)
     end
 end)
-
---------------------------------------------------
--- 🚀 LOOP PRINCIPAL SIN SPAM, ESCANEO CADA 2 SEGUNDOS
-task.wait(3)
-
-while true do
-    local actuales = detectar()
-
-    -- ✅ NOTIFICAR NUEVAS BASES
-    for baseName, data in pairs(actuales) do
-        if not yaNotificado[baseName] then
-            print("🔥 NUEVO:", data.base)
-            enviarDiscord(data.lista)
-            yaNotificado[baseName] = true
-        end
-    end
-
-    -- 🧹 LIMPIAR LAS BASES QUE DESAPARECEN
-    for baseName, _ in pairs(yaNotificado) do
-        if not actuales[baseName] then
-            yaNotificado[baseName] = nil
-        end
-    end
-
-    task.wait(2) -- 🔄 ESCANEO CADA 2 SEGUNDOS
-end
