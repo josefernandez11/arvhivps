@@ -1,27 +1,31 @@
 ---------------- CONFIG ----------------
-local WEBHOOK_10M = "SERVER"
+-- WEBHOOKS
+local WEBHOOK_10M = "DC"   
 local WEBHOOK_SHOWCASE = "AQUI2"
 
+-- API LOCAL
 local LOCAL_API_URL = "https://webhook-roblox.josefernandezxd4.workers.dev/"
 
--- 🔥 BAJADO PARA TEST
-local MIN_PRODUCTION_10M = 1
+-- MINIMOS
+local MIN_PRODUCTION_10M = 10_000_000
 
+-- PINGS
 local PING_HERE_AT = 100_000_000
+
 local SCAN_DELAY = 0.5
 --------------------------------------
 
 local HttpService = game:GetService("HttpService")
 
 local http_request =
-    (syn and syn.request) or
+    (request) or
     (http and http.request) or
-    request
+    (syn and syn.request)
 
 if not http_request then return end
 
 --------------------------------------------------
--- NORMALIZAR
+-- NORMALIZAR NOMBRES
 --------------------------------------------------
 local function normalizeName(name)
     return name
@@ -82,46 +86,58 @@ local function scan(minProduction)
 end
 
 --------------------------------------------------
--- API LOCAL (SIN BLOQUEOS)
+-- API LOCAL
 --------------------------------------------------
+local activeBrainrots = {}
+local activeWebhook = {}
+local notifiedCache = {} -- 🔥 NUEVO
+
 local function sendToLocalAPI(main, list)
     if not LOCAL_API_URL or LOCAL_API_URL == "" then return end
 
     local jobId = game.JobId
     local placeId = game.PlaceId
 
+    local current = {}
+
     for _,v in ipairs(list) do
-        local payload = {
-            name = v.name,
-            value = math.floor(v.value),
-            jobId = jobId,
-            placeId = placeId
-        }
+        local key = jobId .. "|" .. v.name .. "|" .. math.floor(v.value)
+        current[key] = true
 
-        print("📤 API:", v.name, v.value)
+        if not activeBrainrots[key] then
+            activeBrainrots[key] = true
 
-        pcall(function()
-            local res = http_request({
-                Url = LOCAL_API_URL,
-                Method = "POST",
-                Headers = {
-                    ["Content-Type"] = "application/json"
-                },
-                Body = HttpService:JSONEncode(payload)
-            })
+            local payload = {
+                name = v.name,
+                value = math.floor(v.value),
+                jobId = jobId,
+                placeId = placeId
+            }
 
-            if res then
-                print("API STATUS:", res.StatusCode)
-            else
-                print("❌ API sin respuesta")
-            end
-        end)
+            pcall(function()
+                http_request({
+                    Url = LOCAL_API_URL,
+                    Method = "POST",
+                    Headers = {
+                        ["Content-Type"] = "application/json"
+                    },
+                    Body = HttpService:JSONEncode(payload)
+                })
+            end)
+        end
+    end
+
+    for key,_ in pairs(activeBrainrots) do
+        if key:find(jobId) and not current[key] then
+            activeBrainrots[key] = nil
+        end
     end
 end
 
 --------------------------------------------------
--- WEBHOOK (SIN BLOQUEO)
+-- WEBHOOK
 --------------------------------------------------
+
 local function send(list, webhook)
     if #list == 0 then return end
 
@@ -133,7 +149,45 @@ local function send(list, webhook)
 
     sendToLocalAPI(main, list)
 
-    print("📤 WEBHOOK:", main.name, main.value)
+    local hash =
+        normalizeName(main.name)
+        .. "|"
+        .. tostring(math.floor(main.value))
+        .. "|"
+        .. game.JobId
+
+    -- 🚫 evitar duplicado exacto
+    if notifiedCache[hash] then
+        return
+    end
+
+    -- ✅ marcar enviado
+    notifiedCache[hash] = true
+
+    -- 🧹 limpieza inteligente
+    task.spawn(function()
+        task.wait(15)
+
+        local stillExists = false
+
+        for _,v in ipairs(list) do
+            local checkHash =
+                normalizeName(v.name)
+                .. "|"
+                .. tostring(math.floor(v.value))
+                .. "|"
+                .. game.JobId
+
+            if checkHash == hash then
+                stillExists = true
+                break
+            end
+        end
+
+        if not stillExists then
+            notifiedCache[hash] = nil
+        end
+    end)
 
     local jobId = game.JobId
     local placeId = game.PlaceId
@@ -144,41 +198,63 @@ local function send(list, webhook)
         "&gameInstanceId=" .. jobId
 
     local embed = {
-        title = "💎 " .. main.name,
-        description =
-            formatMoney(main.value) ..
-            "\n\nJobId:\n" .. jobId ..
-            "\n\nJoin:\n" .. joinLink,
-        color = 2829618
+        title = "💎 **" .. main.name .. "**",
+        color = 2829618,
+        description = "**(" .. formatMoney(main.value) .. ")**\n\n",
+        footer = {
+            text = "CIX NOTIFIER"
+        },
     }
 
-    pcall(function()
-        http_request({
-            Url = webhook,
-            Method = "POST",
-            Headers = { ["Content-Type"] = "application/json" },
-            Body = HttpService:JSONEncode({
-                embeds = { embed }
-            })
+    embed.description = embed.description ..
+        "**Join Server ID**\n```" .. jobId .. "```\n"
+
+    embed.description = embed.description ..
+        "**Join Server**\n[**CLICK TO JOIN**](" .. joinLink .. ")\n\n"
+
+    http_request({
+        Url = webhook,
+        Method = "POST",
+        Headers = { ["Content-Type"] = "application/json" },
+        Body = HttpService:JSONEncode({
+            embeds = { embed }
         })
-    end)
+    })
 end
 
 --------------------------------------------------
--- LOOP DEBUG
+-- LOOP
 --------------------------------------------------
 task.spawn(function()
     while true do
-        local result = scan(MIN_PRODUCTION_10M)
-
-        print("🔍 SCAN SIZE:", #result)
-
-        for _,v in ipairs(result) do
-            print("•", v.name, v.value)
-        end
-
-        send(result, WEBHOOK_10M)
-
+        send(scan(MIN_PRODUCTION_10M), WEBHOOK_10M)
         task.wait(1)
+    end
+end)
+
+--------------------------------------------------
+-- AUTO REJOIN
+--------------------------------------------------
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
+
+task.spawn(function()
+    while true do
+        task.wait(900)
+
+        local placeId = game.PlaceId
+        local jobId = game.JobId
+
+        pcall(function()
+            TeleportService:TeleportToPlaceInstance(placeId, jobId, player)
+        end)
+
+        task.wait(2)
+
+        pcall(function()
+            TeleportService:Teleport(placeId, player)
+        end)
     end
 end)
