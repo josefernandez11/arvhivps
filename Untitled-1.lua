@@ -1,6 +1,6 @@
 ---------------- CONFIG ----------------
 -- WEBHOOKS
-local WEBHOOK_5M = "DC"   
+local WEBHOOK_5M = "https://discord.com/api/webhooks/1486898527979176078/l0yYukaA74r3abQqjmEr5mZd7D5L64b4zC5Zt_OLPbuGj1pabuanntEAGveeXpSA3bSz"   
 local WEBHOOK_SHOWCASE = "AQUI2"
 
 -- API LOCAL
