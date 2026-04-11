@@ -1,13 +1,13 @@
 ---------------- CONFIG ----------------
 -- WEBHOOKS
-local WEBHOOK_10M = "DC"   
+local WEBHOOK_5M = "DC"   
 local WEBHOOK_SHOWCASE = "AQUI2"
 
 -- API LOCAL
 local LOCAL_API_URL = "https://webhook-roblox.josefernandezxd4.workers.dev/"
 
 -- MINIMOS
-local MIN_PRODUCTION_2M = 2_000_000
+local MIN_PRODUCTION_5M = 5_000_000
 
 -- PINGS
 local PING_HERE_AT = 100_000_000
@@ -227,7 +227,7 @@ end
 --------------------------------------------------
 task.spawn(function()
     while true do
-        send(scan(MIN_PRODUCTION_2M), WEBHOOK_2M)
+        send(scan(MIN_PRODUCTION_5M), WEBHOOK_5M)
         task.wait(1)
     end
 end)
