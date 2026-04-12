@@ -12,7 +12,7 @@ local MIN_PRODUCTION_5M = 5_000_000
 -- PINGS
 local PING_HERE_AT = 100_000_000
 
-local SCAN_DELAY = 0.5
+local SCAN_DELAY = 2
 --------------------------------------
 
 local HttpService = game:GetService("HttpService")
@@ -228,7 +228,7 @@ end
 task.spawn(function()
     while true do
         send(scan(MIN_PRODUCTION_5M), WEBHOOK_5M)
-        task.wait(1)
+        task.wait(SCAN_DELAY)
     end
 end)
 
